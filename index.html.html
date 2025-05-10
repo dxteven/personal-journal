@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой секретный дневник</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --light: #e8f1f2;
+            --dark: #1a1a2e;
+            --error: #d64045;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        .auth-forms {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-danger {
+            background-color: var(--error);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c53035;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .diary-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        
+        .entry {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .entry:last-child {
+            border-bottom: none;
+        }
+        
+        .entry-date {
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .entry-content {
+            white-space: pre-wrap;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .auth-forms, .diary-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Мой секретный дневник</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Форма входа -->
+        <div id="login-form" class="auth-forms">
+            <h2>Вход</h2>
+            <div id="login-error" class="alert alert-error hidden"></div>
+            <div class="form-group">
+                <label for="login-username">Имя пользователя</label>
+                <input type="text" id="login-username" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Пароль</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button id="login-btn">Войти</button>
+            <p>Нет аккаунта? <a href="#" id="show-register">Зарегистрироваться</a></p>
+        </div>
+        
+        <!-- Форма регистрации -->
+        <div id="register-form" class="auth-forms hidden">
+            <h2>Регистрация</h2>
+            <div id="register-error" class="alert alert-error hidden"></div>
+            <div id="register-success" class="alert alert-success hidden"></div>
+            <div class="form-group">
+                <label for="register-username">Имя пользователя</label>
+                <input type="text" id="register-username" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password">Пароль</label>
+                <input type="password" id="register-password" required>
+            </div>
+            <div class="form-group">
+                <label for="register-confirm">Подтвердите пароль</label>
+                <input type="password" id="register-confirm" required>
+            </div>
+            <button id="register-btn">Зарегистрироваться</button>
+            <p>Уже есть аккаунт? <a href="#" id="show-login">Войти</a></p>
+        </div>
+        
+        <!-- Интерфейс дневника -->
+        <div id="diary-interface" class="hidden">
+            <div class="toolbar">
+                <button id="logout-btn">Выйти</button>
+                <button id="new-entry-btn">Новая запись</button>
+            </div>
+            
+            <div id="entries-container" class="diary-container">
+                <!-- Записи будут добавляться сюда -->
+            </div>
+            
+            <!-- Форма новой записи -->
+            <div id="new-entry-form" class="diary-container hidden">
+                <h2>Новая запись</h2>
+                <div class="form-group">
+                    <label for="entry-date">Дата</label>
+                    <input type="date" id="entry-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="entry-content">Содержание</label>
+                    <textarea id="entry-content" required></textarea>
+                </div>
+                <div class="form-group">
+                    <button id="save-entry-btn">Сохранить</button>
+                    <button id="cancel-entry-btn" class="btn-secondary">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM элементы
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const diaryInterface = document.getElementById('diary-interface');
+        const newEntryForm = document.getElementById('new-entry-form');
+        const entriesContainer = document.getElementById('entries-container');
+        
+        // Кнопки
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const newEntryBtn = document.getElementById('new-entry-btn');
+        const saveEntryBtn = document.getElementById('save-entry-btn');
+        const cancelEntryBtn = document.getElementById('cancel-entry-btn');
+        const showRegisterLink = document.getElementById('show-register');
+        const showLoginLink = document.getElementById('show-login');
+        
+        // Поля ввода
+        const loginUsername = document.getElementById('login-username');
+        const loginPassword = document.getElementById('login-password');
+        const registerUsername = document.getElementById('register-username');
+        const registerPassword = document.getElementById('register-password');
+        const registerConfirm = document.getElementById('register-confirm');
+        const entryDate = document.getElementById('entry-date');
+        const entryContent = document.getElementById('entry-content');
+        
+        // Сообщения об ошибках
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const registerSuccess = document.getElementById('register-success');
+        
+        // Текущий пользователь
+        let currentUser = null;
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            // Установка текущей даты по умолчанию
+            const today = new Date().toISOString().split('T')[0];
+            entryDate.value = today;
+            
+            // Проверка авторизации
+            checkAuth();
+            
+            // Обработчики событий
+            setupEventListeners();
+        });
+        
+        // Проверка авторизации
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                currentUser = JSON.parse(user);
+                showDiaryInterface();
+                loadEntries();
+            }
+        }
+        
+        // Показать интерфейс дневника
+        function showDiaryInterface() {
+            loginForm.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            diaryInterface.classList.remove('hidden');
+        }
+        
+        // Загрузка записей
+        function loadEntries() {
+            const entries = JSON.parse(localStorage.getItem(`diary_entries_${currentUser.username}`)) || [];
+            entriesContainer.innerHTML = '';
+            
+            if (entries.length === 0) {
+                entriesContainer.innerHTML = '<p>У вас пока нет записей. Нажмите "Новая запись", чтобы начать.</p>';
+                return;
+            }
+            
+            // Сортируем записи по дате (новые сверху)
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            entries.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'entry';
+                entryElement.innerHTML = `
+                    <div class="entry-date">${formatDate(entry.date)}</div>
+                    <div class="entry-content">${entry.content}</div>
+                `;
+                entriesContainer.appendChild(entryElement);
+            });
+        }
+        
+        // Форматирование даты
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            return new Date(dateString).toLocaleDateString('ru-RU', options);
+        }
+        
+        // Обработчики событий
+        function setupEventListeners() {
+            // Навигация между формами
+            showRegisterLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                clearErrors();
+            });
+            
+            showLoginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                clearErrors();
+            });
+            
+            // Вход
+            loginBtn.addEventListener('click', handleLogin);
+            
+            // Регистрация
+            registerBtn.addEventListener('click', handleRegister);
+            
+            // Выход
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Управление записями
+            newEntryBtn.addEventListener('click', () => {
+                newEntryForm.classList.remove('hidden');
+                entriesContainer.classList.add('hidden');
+            });
+            
+            saveEntryBtn.addEventListener('click', saveEntry);
+            
+            cancelEntryBtn.addEventListener('click', () => {
+                newEntryForm.classList.add('hidden');
+                entriesContainer.classList.remove('hidden');
+                entryContent.value = '';
+            });
+        }
+        
+        // Обработка входа
+        function handleLogin() {
+            const username = loginUsername.value.trim();
+            const password = loginPassword.value.trim();
+            
+            if (!username || !password) {
+                showError(loginError, 'Заполните все поля');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showDiaryInterface();
+                loadEntries();
+                clearErrors();
+            } else {
+                showError(loginError, 'Неверное имя пользователя или пароль');
+            }
+        }
+        
+        // Обработка регистрации
+        function handleRegister() {
+            const username = registerUsername.value.trim();
+            const password = registerPassword.value.trim();
+            const confirm = registerConfirm.value.trim();
+            
+            if (!username || !password || !confirm) {
+                showError(registerError, 'Заполните все поля');
+                return;
+            }
+            
+            if (password !== confirm) {
+                showError(registerError, 'Пароли не совпадают');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError(registerError, 'Пароль должен содержать не менее 6 символов');
+                return;
+            }
+            
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            if (users.some(u => u.username === username)) {
+                showError(registerError, 'Имя пользователя уже занято');
+                return;
+            }
+            
+            const newUser = { username, password };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            registerSuccess.textContent = 'Регистрация успешна! Теперь вы можете войти.';
+            registerSuccess.classList.remove('hidden');
+            registerError.classList.add('hidden');
+            
+            // Очищаем поля
+            registerUsername.value = '';
+            registerPassword.value = '';
+            registerConfirm.value = '';
+            
+            // Показываем форму входа
+            setTimeout(() => {
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                registerSuccess.classList.add('hidden');
+            }, 2000);
+        }
+        
+        // Выход
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            loginForm.classList.remove('hidden');
+            diaryInterface.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            newEntryForm.classList.add('hidden');
+            entriesContainer.classList.remove('hidden');
+            clearFormFields();
+        }
+        
+        // Сохранение записи
+        function saveEntry() {
+            const date = entryDate.value;
+            const content = entryContent.value.trim();
+            
+            if (!date || !content) {
+                alert('Заполните все поля');
+                return;
+            }
+            
+            let entries = JSON.parse(localStorage.getItem(`diary_entries_${currentUser.username}`)) || [];
+            entries.push({ date, content });
+            localStorage.setItem(`diary_entries_${currentUser.username}`, JSON.stringify(entries));
+            
+            // Очищаем форму и обновляем список
+            entryContent.value = '';
+            newEntryForm.classList.add('hidden');
+            entriesContainer.classList.remove('hidden');
+            loadEntries();
+        }
+        
+        // Показать ошибку
+        function showError(element, message) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
+        
+        // Очистить ошибки
+        function clearErrors() {
+            loginError.classList.add('hidden');
+            registerError.classList.add('hidden');
+            registerSuccess.classList.add('hidden');
+        }
+        
+        // Очистить поля форм
+        function clearFormFields() {
+            loginUsername.value = '';
+            loginPassword.value = '';
+            registerUsername.value = '';
+            registerPassword.value = '';
+            registerConfirm.value = '';
+            entryContent.value = '';
+        }
+    </script>
+</body>
+</html>
